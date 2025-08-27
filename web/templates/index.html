@@ -71,7 +71,7 @@
                     实时监控美股、港股、比特币价格变动
                 </p>
                 <div class="mt-4 text-sm opacity-75">
-                    <span v-if="lastUpdate">最后更新: {{ lastUpdate }}</span>
+                    <span v-if="lastUpdate">最后更新: ${ lastUpdate }</span>
                     <span v-if="loading" class="ml-4">
                         <svg class="inline w-4 h-4 loading-spinner" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -85,22 +85,22 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
                 <div class="bg-white rounded-xl p-4 md:p-6 text-center card-hover">
                     <h3 class="text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">总策略数</h3>
-                    <div class="text-3xl font-bold text-blue-600">{{ stats.total || 0 }}</div>
+                    <div class="text-3xl font-bold text-blue-600">${ stats.total || 0 }</div>
                 </div>
                 
                 <div class="bg-white rounded-xl p-4 md:p-6 text-center card-hover">
                     <h3 class="text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">活跃策略</h3>
-                    <div class="text-3xl font-bold text-green-600">{{ stats.active || 0 }}</div>
+                    <div class="text-3xl font-bold text-green-600">${ stats.active || 0 }</div>
                 </div>
                 
                 <div class="bg-white rounded-xl p-4 md:p-6 text-center card-hover">
                     <h3 class="text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">已触发</h3>
-                    <div class="text-3xl font-bold text-red-600">{{ stats.triggered || 0 }}</div>
+                    <div class="text-3xl font-bold text-red-600">${ stats.triggered || 0 }</div>
                 </div>
                 
                 <div class="bg-white rounded-xl p-4 md:p-6 text-center card-hover">
                     <h3 class="text-gray-600 text-sm font-medium uppercase tracking-wide mb-2">监控股票</h3>
-                    <div class="text-3xl font-bold text-purple-600">{{ stats.symbols || 0 }}</div>
+                    <div class="text-3xl font-bold text-purple-600">${ stats.symbols || 0 }</div>
                 </div>
             </div>
 
@@ -112,7 +112,7 @@
                         <h2 class="text-xl font-bold flex items-center">
                             🎯 当前监控策略
                             <span v-if="strategies.length" class="ml-2 bg-blue-400 text-xs px-2 py-1 rounded-full">
-                                {{ strategies.length }}
+                                ${ strategies.length }
                             </span>
                         </h2>
                     </div>
@@ -125,23 +125,23 @@
                                 
                                 <!-- Strategy Header -->
                                 <div class="flex items-start justify-between mb-3">
-                                    <h4 class="font-semibold text-gray-800 flex-1">{{ strategy.name }}</h4>
+                                    <h4 class="font-semibold text-gray-800 flex-1">${ strategy.name }</h4>
                                     <div class="flex items-center space-x-2">
                                         <span :class="getBadgeClass(strategy.action)" 
                                               class="px-2 py-1 rounded text-xs font-bold uppercase">
-                                            {{ strategy.action }}
+                                            ${ strategy.action }
                                         </span>
-                                        <span class="font-bold text-gray-700">{{ strategy.symbol }}</span>
+                                        <span class="font-bold text-gray-700">${ strategy.symbol }</span>
                                     </div>
                                 </div>
                                 
                                 <!-- Condition -->
                                 <div class="text-sm text-gray-600 mb-3">
                                     <span v-if="strategy.condition_type === 'below'">
-                                        价格低于 <span class="font-semibold">{{ formatPrice(strategy.target_price) }}</span> 时触发
+                                        价格低于 <span class="font-semibold">${ formatPrice(strategy.target_price) }</span> 时触发
                                     </span>
                                     <span v-else>
-                                        价格高于 <span class="font-semibold">{{ formatPrice(strategy.target_price) }}</span> 时触发
+                                        价格高于 <span class="font-semibold">${ formatPrice(strategy.target_price) }</span> 时触发
                                     </span>
                                 </div>
                                 
@@ -153,7 +153,7 @@
                                             <span class="text-sm text-gray-600">📊 当前价格:</span>
                                             <span class="font-bold" 
                                                   :class="isDemo(strategy) ? 'text-yellow-700' : 'text-green-600'">
-                                                {{ strategy.currency }} {{ formatPrice(strategy.current_price) }}
+                                                ${ strategy.currency } ${ formatPrice(strategy.current_price) }
                                             </span>
                                             <span v-if="isDemo(strategy)" 
                                                   class="bg-yellow-500 text-white px-2 py-0.5 rounded text-xs font-bold demo-pulse">
@@ -161,7 +161,7 @@
                                             </span>
                                         </div>
                                         <div v-if="strategy.last_updated" class="text-xs text-gray-500">
-                                            {{ formatTimestamp(strategy.last_updated) }}
+                                            ${ formatTimestamp(strategy.last_updated) }
                                         </div>
                                     </div>
                                     <div v-else class="text-red-600 text-sm italic">
@@ -188,7 +188,7 @@
                         <h2 class="text-xl font-bold flex items-center">
                             📧 通知历史
                             <span v-if="notifications.length" class="ml-2 bg-green-400 text-xs px-2 py-1 rounded-full">
-                                {{ notifications.length }}
+                                ${ notifications.length }
                             </span>
                         </h2>
                     </div>
@@ -197,10 +197,10 @@
                         <div v-if="notifications.length" class="space-y-3">
                             <div v-for="notification in notifications" :key="notification.id" 
                                  class="border-l-4 border-blue-400 bg-gray-50 p-3 rounded-r-lg hover:bg-gray-100 transition-colors">
-                                <div class="text-xs text-gray-500 mb-1">{{ notification.sent_at }}</div>
-                                <div class="text-sm leading-relaxed">{{ notification.message }}</div>
+                                <div class="text-xs text-gray-500 mb-1">${ notification.sent_at }</div>
+                                <div class="text-sm leading-relaxed">${ notification.message }</div>
                                 <div v-if="notification.strategy_name" class="text-xs text-blue-600 mt-1 font-medium">
-                                    策略: {{ notification.strategy_name }}
+                                    策略: ${ notification.strategy_name }
                                 </div>
                             </div>
                         </div>
@@ -232,6 +232,7 @@
         const { createApp } = Vue;
 
         createApp({
+            delimiters: ['${', '}'],
             data() {
                 return {
                     stats: {},

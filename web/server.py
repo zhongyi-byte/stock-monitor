@@ -43,10 +43,7 @@ class WebServer:
                     'symbols': symbols_count
                 }
                 
-                return render_template('index.html', 
-                                     stats=stats,
-                                     strategies=strategies,
-                                     notifications=notifications)
+                return render_template('index.html')
             
             except Exception as e:
                 return f"加载数据出错: {e}", 500
