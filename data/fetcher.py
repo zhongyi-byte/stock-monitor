@@ -111,10 +111,30 @@ class DataFetcher:
             return None
     
     def get_btc_price(self) -> Optional[Dict]:
-        """获取BTC价格 - 使用CoinGecko免费API"""
+        """获取BTC价格 - 尝试多个API源"""
+        # 方法1: 尝试Binance API (通常更稳定)
+        try:
+            url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
+            response = self.session.get(url, timeout=8)
+            response.raise_for_status()
+            data = response.json()
+            
+            price = float(data['price'])
+            
+            return {
+                'symbol': 'BTC-USD',
+                'price': price,
+                'currency': 'USD',
+                'name': 'Bitcoin',
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
+        except Exception as e:
+            print(f"Binance API失败: {e}")
+        
+        # 方法2: 尝试CoinGecko API
         try:
             url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
-            response = self.session.get(url, timeout=10)
+            response = self.session.get(url, timeout=8)
             response.raise_for_status()
             data = response.json()
             
@@ -128,15 +148,39 @@ class DataFetcher:
                 'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             }
         except Exception as e:
-            print(f"获取BTC数据失败，使用演示数据: {e}")
-            # 返回演示数据
-            return {
-                'symbol': 'BTC-USD',
-                'price': 64250.0,
-                'currency': 'USD',
-                'name': 'Bitcoin (Demo)',
-                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ' (演示数据)'
-            }
+            print(f"CoinGecko API失败: {e}")
+        
+        # 方法3: 尝试Yahoo Finance (BTC-USD)
+        try:
+            url = "https://query1.finance.yahoo.com/v8/finance/chart/BTC-USD"
+            response = self.session.get(url, timeout=8)
+            response.raise_for_status()
+            data = response.json()
+            
+            if 'chart' in data and 'result' in data['chart'] and data['chart']['result']:
+                result = data['chart']['result'][0]
+                if 'meta' in result and 'regularMarketPrice' in result['meta']:
+                    price = float(result['meta']['regularMarketPrice'])
+                    
+                    return {
+                        'symbol': 'BTC-USD',
+                        'price': price,
+                        'currency': 'USD',
+                        'name': 'Bitcoin',
+                        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    }
+        except Exception as e:
+            print(f"Yahoo Finance BTC API失败: {e}")
+        
+        # 所有API都失败，返回演示数据
+        print(f"获取BTC数据失败，使用演示数据")
+        return {
+            'symbol': 'BTC-USD',
+            'price': 64250.0,
+            'currency': 'USD',
+            'name': 'Bitcoin',
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ' (演示数据)'
+        }
     
     def get_price(self, symbol: str) -> Optional[Dict]:
         """统一的价格获取接口"""

@@ -139,6 +139,26 @@
             font-style: italic;
         }
         
+        .demo-data {
+            opacity: 0.6;
+            background: #fff3cd !important;
+            border-left-color: #ffc107 !important;
+        }
+        
+        .demo-data .price-value {
+            color: #856404 !important;
+        }
+        
+        .demo-badge {
+            background: #ffc107;
+            color: #212529;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
         .notification-item {
             border-left: 4px solid #4a90e2;
             padding: 12px 15px;
@@ -242,13 +262,20 @@
                                     价格高于 {{ "%.2f"|format(strategy.target_price) }} 时触发
                                 {% endif %}
                             </div>
-                            <div class="current-price">
+                            <div class="current-price {% if strategy.last_updated and '演示数据' in strategy.last_updated %}demo-data{% endif %}">
                                 {% if strategy.current_price %}
                                     📊 当前价格: <span class="price-value">{{ strategy.currency }} {{ "%.2f"|format(strategy.current_price) }}</span>
                                     {% if strategy.last_updated %}
-                                        <span style="color: #666; font-size: 0.85rem; margin-left: 8px;">
-                                            ({{ strategy.last_updated }})
-                                        </span>
+                                        {% if '演示数据' in strategy.last_updated %}
+                                            <span class="demo-badge">演示数据</span>
+                                            <span style="color: #666; font-size: 0.85rem; margin-left: 8px;">
+                                                ({{ strategy.last_updated.replace(' (演示数据)', '') }})
+                                            </span>
+                                        {% else %}
+                                            <span style="color: #666; font-size: 0.85rem; margin-left: 8px;">
+                                                ({{ strategy.last_updated }})
+                                            </span>
+                                        {% endif %}
                                     {% endif %}
                                 {% else %}
                                     <span class="price-unavailable">🔄 价格获取中...</span>
