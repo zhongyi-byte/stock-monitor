@@ -13,12 +13,73 @@ class DataFetcher:
     
     def get_stock_price(self, symbol: str) -> Optional[Dict]:
         """
-        获取股票价格 - 使用免费API
+        获取股票价格 - 首先尝试Yahoo Finance API，失败则用演示数据
         港股: 0700.HK (腾讯)  
         美股: AAPL
         """
+        # 首先尝试Yahoo Finance直接API
         try:
-            # 使用Alpha Vantage免费API (演示数据)
+            # 使用Yahoo Finance查询API
+            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
+            response = self.session.get(url, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            
+            if 'chart' in data and 'result' in data['chart'] and data['chart']['result']:
+                result = data['chart']['result'][0]
+                
+                # 获取最新价格
+                if 'meta' in result and 'regularMarketPrice' in result['meta']:
+                    current_price = float(result['meta']['regularMarketPrice'])
+                    currency = result['meta'].get('currency', 'USD')
+                    stock_name = result['meta'].get('longName', symbol)
+                    
+                    return {
+                        'symbol': symbol,
+                        'price': current_price,
+                        'currency': currency,
+                        'name': stock_name,
+                        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    }
+        except Exception as e:
+            print(f"Yahoo Finance API失败: {e}")
+        
+        # 如果Yahoo Finance失败，尝试yfinance
+        try:
+            import yfinance as yf
+            
+            ticker = yf.Ticker(symbol)
+            hist = ticker.history(period="1d")
+            
+            if not hist.empty:
+                current_price = float(hist['Close'].iloc[-1])
+                
+                try:
+                    info = ticker.info
+                    stock_name = info.get('longName', symbol)
+                    currency = info.get('currency', 'USD')
+                except:
+                    stock_name = symbol
+                    currency = 'HKD' if symbol.endswith('.HK') else 'USD'
+                
+                return {
+                    'symbol': symbol,
+                    'price': current_price,
+                    'currency': currency,
+                    'name': stock_name,
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
+                
+        except Exception as e:
+            print(f"yfinance也失败: {e}")
+        
+        # 所有方法都失败，使用演示数据
+        print(f"获取股票 {symbol} 真实数据失败，使用演示数据")
+        return self._get_demo_price(symbol)
+    
+    def _get_demo_price(self, symbol: str) -> Optional[Dict]:
+        """演示数据回退方案"""
+        try:
             if symbol.endswith('.HK'):
                 # 港股演示数据
                 demo_prices = {'0700.HK': 320.50, '0941.HK': 45.20, '2318.HK': 52.80}
@@ -30,10 +91,10 @@ class DataFetcher:
                     'price': price,
                     'currency': 'HKD',
                     'name': name_map.get(symbol, symbol),
-                    'timestamp': datetime.now().isoformat()
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ' (演示数据)'
                 }
             else:
-                # 美股演示数据
+                # 美股演示数据  
                 demo_prices = {'AAPL': 175.84, 'MSFT': 428.39, 'GOOGL': 164.72, 'TSLA': 248.50}
                 price = demo_prices.get(symbol, 150.0)
                 name_map = {'AAPL': 'Apple Inc.', 'MSFT': 'Microsoft Corp', 'GOOGL': 'Alphabet Inc', 'TSLA': 'Tesla Inc'}
@@ -43,11 +104,10 @@ class DataFetcher:
                     'price': price,
                     'currency': 'USD',
                     'name': name_map.get(symbol, symbol),
-                    'timestamp': datetime.now().isoformat()
+                    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ' (演示数据)'
                 }
-                
         except Exception as e:
-            print(f"获取股票 {symbol} 数据失败: {e}")
+            print(f"获取演示数据失败: {e}")
             return None
     
     def get_btc_price(self) -> Optional[Dict]:
@@ -65,7 +125,7 @@ class DataFetcher:
                 'price': price,
                 'currency': 'USD',
                 'name': 'Bitcoin',
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             }
         except Exception as e:
             print(f"获取BTC数据失败，使用演示数据: {e}")
@@ -75,7 +135,7 @@ class DataFetcher:
                 'price': 64250.0,
                 'currency': 'USD',
                 'name': 'Bitcoin (Demo)',
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S') + ' (演示数据)'
             }
     
     def get_price(self, symbol: str) -> Optional[Dict]:
