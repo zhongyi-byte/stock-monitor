@@ -5,11 +5,26 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from typing import List, Dict, Optional
 from data.storage import Database
 from data.fetcher import DataFetcher
+from data.database_adapter import create_database_adapter
 
 
 class StrategyManager:
-    def __init__(self, db_path: str = "stock_monitor.db"):
-        self.db = Database(db_path)
+    def __init__(self, config: Dict = None, db_path: str = "stock_monitor.db"):
+        """
+        策略管理器
+        
+        Args:
+            config: 配置字典，如果提供则使用适配器模式
+            db_path: SQLite数据库路径（向后兼容）
+        """
+        if config:
+            # 使用配置创建数据库适配器
+            adapter = create_database_adapter(config)
+            self.db = Database(adapter=adapter)
+        else:
+            # 向后兼容，使用SQLite
+            self.db = Database(db_path=db_path)
+            
         self.fetcher = DataFetcher()
     
     def create_strategy(self, name: str, symbol: str, condition_type: str, 

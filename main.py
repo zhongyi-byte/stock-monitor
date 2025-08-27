@@ -10,27 +10,23 @@ from pathlib import Path
 from typing import Dict
 
 from strategy.manager import StrategyManager
-from monitor.engine import MonitorEngine, create_default_config
+from monitor.engine import MonitorEngine
 from notification.email_service import EmailService
+from config.manager import ConfigManager, create_default_config
 
 
-def load_config(config_path: str = "config.json") -> Dict:
-    """加载配置文件"""
-    config_file = Path(config_path)
+def load_config(config_path: str = "config.json") -> ConfigManager:
+    """加载配置 - 使用新的配置管理器"""
+    config_manager = ConfigManager(config_path)
     
-    if config_file.exists():
-        with open(config_file, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    else:
-        # 创建默认配置文件
-        default_config = create_default_config()
-        with open(config_file, 'w', encoding='utf-8') as f:
-            json.dump(default_config, f, indent=2, ensure_ascii=False)
-        
+    # 如果配置文件不存在，保存默认配置
+    config_file = Path(config_path)
+    if not config_file.exists():
+        config_manager.save(config_path)
         print(f"✅ 已创建默认配置文件: {config_path}")
         print("⚠️  请编辑配置文件设置邮件服务后重新运行")
-        
-        return default_config
+    
+    return config_manager
 
 
 def setup_email_config():
@@ -164,22 +160,23 @@ def main():
     print("支持港股、美股、比特币监控")
     
     # 加载配置
-    config = load_config(args.config)
+    config_manager = load_config(args.config)
+    config = config_manager.get_all()
     
     # 邮件配置设置
     if args.setup:
         email_config = setup_email_config()
-        config['email'] = email_config
+        # 更新配置管理器
+        for key, value in email_config.items():
+            config_manager.set(f'email.{key}', value)
         
         # 保存配置
-        with open(args.config, 'w', encoding='utf-8') as f:
-            json.dump(config, f, indent=2, ensure_ascii=False)
-        
+        config_manager.save(args.config)
         print("✅ 配置已保存")
         return
     
-    # 创建管理器
-    manager = StrategyManager(config['db_path'])
+    # 创建管理器 - 使用新的配置系统
+    manager = StrategyManager(config=config)
     
     # 添加策略
     if args.add_strategy:

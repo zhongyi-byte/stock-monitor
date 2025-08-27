@@ -1,0 +1,29 @@
+# Cloudflare Workers 配置文件
+name = "stock-monitor-api"
+main = "src/worker.py"
+compatibility_date = "2024-08-01"
+
+# Python Workers支持
+[python]
+# 依赖项将从requirements.txt读取
+
+# D1 数据库绑定
+[[d1_databases]]
+binding = "DB"
+database_name = "stock-monitor-db"
+database_id = "" # 部署时填入
+
+# 环境变量
+[vars]
+ENVIRONMENT = "production"
+DEPLOYMENT_TYPE = "cloudflare"
+
+# 生产环境变量 (需要通过 wrangler secret 设置)
+# wrangler secret put EMAIL_PASSWORD
+# wrangler secret put CF_API_TOKEN
+# wrangler secret put SENDER_EMAIL
+# wrangler secret put RECIPIENT_EMAIL
+
+# Cron 触发器 - 每5分钟检查一次
+[[triggers]]
+crons = ["*/5 * * * *"]
