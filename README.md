@@ -9,6 +9,7 @@
 - 🕐 **定时监控**: 每天定时自动检查
 - 💾 **数据存储**: SQLite数据库存储策略和历史
 - 🔧 **易于配置**: 命令行交互式设置
+- 🌐 **Web界面**: 可视化管理和监控面板
 
 ## 快速开始
 
@@ -38,8 +39,20 @@ python main.py --add-strategy
 - **腾讯突破新高**: 0700.HK 价格高于 HKD 350 时通知
 - **比特币回调**: BTC 价格低于 $60,000 时买入提醒
 
-### 4. 启动监控
+### 4. 启动系统
+
+#### 🌐 Web界面管理（推荐）
 ```bash
+# 启动Web管理界面
+python main.py --web
+
+# 浏览器访问 http://127.0.0.1:5000
+# 可以查看实时统计、策略列表、通知历史
+```
+
+#### 🖥️ 命令行监控
+```bash
+# 启动后台监控系统
 python main.py --start
 ```
 
@@ -54,7 +67,37 @@ python main.py --add-strategy       # 添加监控策略
 python main.py --list-strategies    # 查看所有策略
 python main.py --run-once           # 手动执行一次检查
 python main.py --start              # 启动监控系统
+python main.py --web                # 启动Web管理界面
+python main.py --web --port 8080    # 指定Web端口
 ```
+
+### 📱 Web界面功能
+
+- **📊 实时统计面板**: 显示总策略数、活跃策略、已触发数量、监控股票数
+- **📈 策略管理**: 查看所有当前监控策略，显示触发条件和动作类型
+- **📧 通知历史**: 查看所有邮件通知记录，按时间排序
+- **🔄 自动刷新**: 每分钟自动刷新数据，保持信息实时性
+- **📱 响应式设计**: 支持手机和桌面设备访问
+
+### 🎯 完整使用流程
+
+1. **首次设置**:
+   ```bash
+   source venv/bin/activate
+   python main.py --setup              # 配置邮箱
+   python main.py --add-strategy       # 添加策略
+   ```
+
+2. **查看和管理**:
+   ```bash
+   python main.py --web                # 启动Web界面
+   # 浏览器访问 http://127.0.0.1:5000
+   ```
+
+3. **后台监控**:
+   ```bash
+   python main.py --start              # 启动定时监控
+   ```
 
 ### 支持的股票代码
 
@@ -120,10 +163,11 @@ python main.py --start              # 启动监控系统
 
 ```
 stock_monitor/
-├── main.py              # 主程序入口
+├── main.py              # 主程序入口（支持Web模式）
 ├── config.json         # 配置文件
 ├── stock_monitor.db    # SQLite数据库
 ├── requirements.txt    # Python依赖
+├── demo_setup.py       # 演示数据设置
 ├── data/
 │   ├── fetcher.py      # 数据获取模块
 │   └── storage.py      # 数据存储模块
@@ -131,8 +175,12 @@ stock_monitor/
 │   └── manager.py      # 策略管理模块
 ├── notification/
 │   └── email_service.py # 邮件通知模块
-└── monitor/
-    └── engine.py       # 监控引擎
+├── monitor/
+│   └── engine.py       # 监控引擎
+└── web/
+    ├── server.py       # Flask Web服务器
+    └── templates/
+        └── index.html  # Web界面模板
 ```
 
 ## 使用示例

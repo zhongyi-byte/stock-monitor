@@ -155,6 +155,8 @@ def main():
     parser.add_argument('--list-strategies', action='store_true', help='列出所有策略')
     parser.add_argument('--run-once', action='store_true', help='手动执行一次检查')
     parser.add_argument('--start', action='store_true', help='启动监控系统')
+    parser.add_argument('--web', action='store_true', help='启动Web管理界面')
+    parser.add_argument('--port', type=int, default=5000, help='Web服务器端口（默认5000）')
     
     args = parser.parse_args()
     
@@ -202,6 +204,19 @@ def main():
         engine.start_monitoring()
         return
     
+    # 启动Web管理界面
+    if args.web:
+        try:
+            from web.server import create_web_server
+            web_server = create_web_server(config)
+            web_server.run(host='0.0.0.0', port=args.port, debug=False)
+        except ImportError:
+            print("❌ 缺少Flask依赖，请先安装:")
+            print("pip install flask==3.0.0")
+        except Exception as e:
+            print(f"❌ Web服务器启动失败: {e}")
+        return
+    
     # 默认显示帮助信息
     print("\n使用方法:")
     print("  python main.py --setup              # 设置邮件配置")
@@ -209,6 +224,8 @@ def main():
     print("  python main.py --list-strategies    # 查看所有策略")
     print("  python main.py --run-once           # 手动执行一次检查")
     print("  python main.py --start              # 启动监控系统")
+    print("  python main.py --web                # 启动Web管理界面")
+    print("  python main.py --web --port 8080    # 指定Web端口")
     print("\n更多帮助: python main.py --help")
 
 
