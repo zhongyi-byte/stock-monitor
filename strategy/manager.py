@@ -43,6 +43,26 @@ class StrategyManager:
         """获取所有活跃策略"""
         return self.db.get_active_strategies()
     
+    def get_strategies_with_current_prices(self) -> List[Dict]:
+        """获取所有活跃策略及其当前价格"""
+        strategies = self.db.get_active_strategies()
+        
+        for strategy in strategies:
+            symbol = strategy['symbol']
+            
+            # 获取当前价格数据
+            current_price_data = self.fetcher.get_price(symbol)
+            if current_price_data:
+                strategy['current_price'] = current_price_data['price']
+                strategy['currency'] = current_price_data.get('currency', 'USD')
+                strategy['last_updated'] = current_price_data.get('timestamp', '')
+            else:
+                strategy['current_price'] = None
+                strategy['currency'] = 'USD'
+                strategy['last_updated'] = ''
+        
+        return strategies
+    
     def check_strategy_triggers(self) -> List[Dict]:
         """
         检查所有策略是否触发

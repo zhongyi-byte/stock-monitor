@@ -27,8 +27,8 @@ class WebServer:
                 # 获取策略统计
                 status = self.strategy_manager.get_strategy_status()
                 
-                # 获取活跃策略
-                strategies = self.strategy_manager.get_all_strategies()
+                # 获取活跃策略及其当前价格
+                strategies = self.strategy_manager.get_strategies_with_current_prices()
                 
                 # 获取最近通知
                 notifications = self.get_recent_notifications()
@@ -55,7 +55,7 @@ class WebServer:
         def api_strategies():
             """API - 获取所有策略"""
             try:
-                strategies = self.strategy_manager.get_all_strategies()
+                strategies = self.strategy_manager.get_strategies_with_current_prices()
                 return jsonify(strategies)
             except Exception as e:
                 return jsonify({'error': str(e)}), 500

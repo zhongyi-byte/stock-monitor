@@ -120,6 +120,25 @@
             color: #666;
         }
         
+        .current-price {
+            font-size: 0.95rem;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #4a90e2;
+        }
+        
+        .price-value {
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        
+        .price-unavailable {
+            color: #c62828;
+            font-style: italic;
+        }
+        
         .notification-item {
             border-left: 4px solid #4a90e2;
             padding: 12px 15px;
@@ -221,6 +240,18 @@
                                     价格低于 {{ "%.2f"|format(strategy.target_price) }} 时触发
                                 {% else %}
                                     价格高于 {{ "%.2f"|format(strategy.target_price) }} 时触发
+                                {% endif %}
+                            </div>
+                            <div class="current-price">
+                                {% if strategy.current_price %}
+                                    📊 当前价格: <span class="price-value">{{ strategy.currency }} {{ "%.2f"|format(strategy.current_price) }}</span>
+                                    {% if strategy.last_updated %}
+                                        <span style="color: #666; font-size: 0.85rem; margin-left: 8px;">
+                                            ({{ strategy.last_updated }})
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="price-unavailable">🔄 价格获取中...</span>
                                 {% endif %}
                             </div>
                         </div>
